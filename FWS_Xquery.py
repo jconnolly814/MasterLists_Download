@@ -5,14 +5,12 @@ import requests
 import sys
 import os
 
-
 import pandas as pd
 
 import csv
 
-
-date= 20160606
-outpath= r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606'
+date = 20160607
+outpath = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas'
 url = "http://ecos.fws.gov/services/TessQuery?request=query&xquery=/SPECIES_DETAIL"
 
 r = requests.get(url)
@@ -26,24 +24,23 @@ deafultTags = ['spcode', 'vipcode', 'sciname', 'comname', 'invname', 'pop_abbrev
                'delisting_date']
 delcolumns = ['species_detail', 'results']
 
-
 colOrder = {
-            9: 'spcode',
-            10: 'vipcode',
-            2: 'sciname',
-            1: 'comname',
-            3: 'invname',
-            6: 'pop_abbrev',
-            7: 'pop_desc',
-            8: 'family',
-            4: 'status',
-            5: 'status_text',
-            11: 'lead_agency',
-            12: 'lead_region',
-            13: 'country',
-            14: 'listing_date',
-            15: 'dps',
-            16: 'refuge_occurrence'}
+    9: 'spcode',
+    10: 'vipcode',
+    2: 'sciname',
+    1: 'comname',
+    3: 'invname',
+    6: 'pop_abbrev',
+    7: 'pop_desc',
+    8: 'family',
+    4: 'status',
+    5: 'status_text',
+    11: 'lead_agency',
+    12: 'lead_region',
+    13: 'country',
+    14: 'listing_date',
+    15: 'dps',
+    16: 'refuge_occurrence'}
 
 
 def CheckXML_changes(xml):
@@ -106,7 +103,7 @@ def CheckXML_changes(xml):
         print 'Using default tags of {0}'.format(deafultTags)
         taglist = deafultTags
         speciesbreak = 'species_detail'
-        identifier ='entity_id'
+        identifier = 'entity_id'
 
     globals()[identifier] = []
     globals()[speciesbreak] = []
@@ -115,6 +112,7 @@ def CheckXML_changes(xml):
         globals()[v] = {}
     print '\nSpecies information that will be extracted {0} using the identifier {1}'.format(taglist, identifier)
     return taglist, speciesbreak, identifier
+
 
 def list_dicts():
     # global spcode, vipcode, sciname, comname, invname, pop_abbrev, pop_desc, family, status, status_text, lead_agency, lead_region, country, listing_date, dps, refuge_occurrence
@@ -129,88 +127,41 @@ def list_dicts():
     listdicts.remove('colOrder')
     return listdicts
 
+
 def find_textxml(row, id, sp_info_need):
     for value in sp_info_need:
         try:
             c_value = (row.find(value, recursive=False).text)
             clean = c_value.encode('utf8', 'replace')
         except:
-            clean  = 'None'
-        (globals()[value])[id] = (clean.replace(",", " "))
-
-def filterquery (listvars, entlist):
-    filterentlist =[]
-    askQ = True
-    while askQ:
-        status = raw_input('Where is the status located {0}: '.format(listvars))
-        if status not in listvars:
-            print 'This is not a valid answer: remove quotes and spaces'
-        else:
-            liststatus = set(globals()[status].values())
-            break
-
-    while askQ:
-        country = raw_input('Where is the country  located {0}: '.format(listvars))
-        if country not in listvars:
-            print 'This is not a valid answer: remove quotes and spaces'
-        else:
-            break
-    Failed = False
-    while askQ:
-
-        filtered_status = raw_input('Which statuses should be included in the filtered table{0}? '.format(liststatus)) ##TODO print out list one value per line
-        listinput = filtered_status.split(",")
-        for v in listinput:
-            if v not in liststatus:
-                print v
-                Failed = True
-                print 'This is not a valid answer: values must be separated by a comma without a space'
-
-            else:
-                if Failed == False:
-                    askQ = False
-                else:
-                    askQ = True
-
-    for i in entlist:
-        check_status =globals()[status][i]
-        if check_status in listinput:
-            filterentlist.append(i)
-    for i in filterentlist:
-
-        check_country =globals()[country][i]
-        if check_country =='2':
-            filterentlist.remove(i)
+            clean = 'None'
+        (globals()[value])[id] = str((clean.replace(",", " ")))
 
 
-    return filterentlist
-
-
-def CreateSpecisTable (species_entList, species_info_var,colOrder):
-
+def CreateSpecisTable(species_entList, species_info_var, colOrder):
     list_cols = colOrder.values()
     list_index = colOrder.keys()
 
-    counter = ((max(list_index))+1)
+    counter = ((max(list_index)) + 1)
     for v in species_info_var:
         if v not in list_cols:
-            #print v
-            #print counter
+            # print v
+            # print counter
             colOrder[counter] = v
             counter += 1
         else:
             continue
 
-    list_final =colOrder.keys()
-    header =colOrder.values()
+    list_final = colOrder.keys()
+    header = colOrder.values()
 
     outlist = []
     for i in species_entList:
-        col =1
-        current_species=[]
-        entid =str(i)
+        col = 1
+        current_species = []
+        entid = str(i)
         current_species.append(entid)
-        while col  < ((max(list_final)+1)):
+        while col < ((max(list_final) + 1)):
             current_col = colOrder[col]
             value = ((globals()[current_col][entid]))
             try:
@@ -224,8 +175,8 @@ def CreateSpecisTable (species_entList, species_info_var,colOrder):
         outlist.append(current_species)
     return outlist, header
 
+
 def create_outtable(outInfo, csvname, header):
-    ## CHANGE added a function to export to the dictionaries and lists to csv to QA the intermediate steps and to have copies of the final tables
     if type(outInfo) is dict:
         with open(csvname, "wb") as output:
             writer = csv.writer(output, lineterminator='\n')
@@ -237,10 +188,11 @@ def create_outtable(outInfo, csvname, header):
                 writer.writerow(val)
     elif type(outInfo) is list:
         with open(csvname, "wb") as output:
-            writer = csv.writer(output, delimiter =",",quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
             for val in outInfo:
                 writer.writerow([val])
+
 
 # Use Beautiful Soup to Parse the HTML
 soup = BeautifulSoup(r.content, 'html.parser')
@@ -257,34 +209,15 @@ for row in soup.find_all(speciesbreak):
     find_textxml(row, entid, sp_info_need)
 
 
-filter_list = filterquery (sp_info_need, globals()[identifier])
-print "There are {0} listed entities that will be considered".format(len(filter_list))
 Full_list = globals()[identifier]
-
-filterResults, header =CreateSpecisTable (filter_list, tagslist,colOrder)
-
-
-FullResults, header =CreateSpecisTable (filter_list, tagslist,colOrder)
-
-
+FullResults, header = CreateSpecisTable(Full_list, tagslist, colOrder)
 
 finalheader = ['EntityID']
 for v in header:
     finalheader.append(v)
 
-outfilter = outpath+ os.sep + 'FilteredTess_' + str(date) + '.csv'
+fulltable = outpath + os.sep + 'FullTess_' + str(date) + '.csv'
 
-fulltable =outpath+ os.sep + 'FullTess_' + str(date) + '.csv'
-
-
-outDF_filtered = pd.DataFrame(filterResults, columns= finalheader)
-outDF_filtered.to_csv(outfilter, encoding='utf-8')
-
-outDF_Full = pd.DataFrame(FullResults, columns= finalheader)
-outDF_Full.to_csv(fulltable,encoding='utf-8')
-
-#create_outtable(filterResults, outfilter, finalheader)
-#create_outtable(FullResults, fulltable, finalheader)
-
-
-
+outDF_Full = pd.DataFrame(FullResults, columns=finalheader)
+outDF_Full.to_csv(fulltable, encoding='utf-8')
+# create_outtable(FullResults, fulltable, finalheader)
