@@ -2,16 +2,15 @@ __author__ = 'JConno02'
 
 import datetime
 import os
+import csv
 
 import pandas as pd
 
-import csv
-
 date = 20160608
-oldMaster = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\April2015\CSV\MasterListESA_April2015_20151015_20151124.csv'
-newMaster = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas\FilteredTessPandas_20160607.csv'
+oldMaster = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas\ChangesJustFWS\FWS_MasterListESA_April2015_20151015_20151124.csv'
+newMaster = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas\ChangesJustFWS\FilteredTessPandas_FWS_20160607.csv'
 table_id_list=['old', 'new']
-outpath = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas\Changes'
+outpath = r'C:\Users\JConno02\Documents\Projects\ESA\MasterLists\TESSQueries\20160606\FilteredinPandas\ChangesJustFWS'
 
 CheckForChanges_col = ['entity_id', 'spcode', 'vipcode', 'sciname', 'comname', 'family', 'status_text', 'country']
 
@@ -104,13 +103,13 @@ def CheckForChanges(dictlist,cols,allent_df):
                                 new= ((globals()[value][entid]))
 
                             except KeyError:
-                                new= 'NA'
+                                new = 'Removed'
                         else:
                             try:
                                 old= ((globals()[value][entid]))
 
                             except KeyError:
-                                old= 'NA'
+                                old = 'Newly Added'
                     row +=1
                     if old == new:
                         change = 'No'
