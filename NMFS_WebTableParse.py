@@ -91,12 +91,9 @@ for table in tables:
     t = unicodedata.normalize("NFKD", title[counter])
     subgroup = 'None'
     # print table.prettify()
-
     outtable = makelist(table)
-
     header = t
     create_outtable(outtable, (outpath + os.sep + 'NMFS_' + str(counter) + '_' + str(date) + '.csv'), header)
-
     current_species = []
 
     pop = False
@@ -123,7 +120,7 @@ for table in tables:
                 for i in v:
                     current_species.append(unicodedata.normalize("NFKD", i))
                 print pop
-                    continue
+                continue
 
             elif len(spe_infoList) >= 2:
                 com = unicodedata.normalize("NFKD", spe_infoList[0])
@@ -144,7 +141,7 @@ for table in tables:
             inter.append(current_species)
 
     counter += 1
-# print inter
+#print inter
 outDF_Full = pd.DataFrame(inter)
 fulltable = (outpath + os.sep + 'NMFSb_' + str(counter) + '_' + str(date) + '.csv')
 outDF_Full.to_csv(fulltable, encoding='utf-8')
